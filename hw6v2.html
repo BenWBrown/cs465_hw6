@@ -103,20 +103,25 @@
     var globalDataset;
     var vis, nestedData;
 
-      var createVis = function(parent, width, height){
+      var createVis = function(parent, width, height, maxRange){
         var dataset, xData, yData;
 
         var margins = {top:20, bottom:60, left: 60, right:20};
+        var timelineHeight = 80;
         var chartWidth = width - margins.left - margins.right;
-        var chartHeight = height - margins.top - margins.bottom;
+        var chartHeight = height - margins.top - margins.bottom - timelineHeight;
+
+        var timelineScale = d3.scale.linear().range([0, chartWidth]).domain(maxRange);
 
         var xScale = d3.scale.linear().range([0, chartWidth]);
         var yScale = d3.scale.linear().range([chartHeight, 0]);
         var color = d3.scale.category10();
 
+        var timelineAxis = d3.svg.axis().scale(timelineScale).orient("bottom").tickFormat(d3.format("d"));
         var xAxis = d3.svg.axis().scale(xScale).orient("bottom").tickFormat(d3.format("d"));
         var yAxis = d3.svg.axis().scale(yScale).orient("left");
 
+        var brush = d3.svg.brush();
 
         var svg = d3.select(parent)
           .append("svg")
@@ -132,16 +137,43 @@
         var yAxisG = chart.append("g")
           .attr({"class": "axis"});
 
+        var timelineG = chart.append("g")
+          .attr({
+            "transform": "translate(0," + (chartHeight+timelineHeight) +")",
+                  "class":"axis"})
+          .call(timelineAxis);
+        timelineG.append("text")
+        .attr({
+          "transform": "translate(" + chartWidth/2 + ",-10)",
+          "font-family":"sans-serif",
+          "font-size":"14px",
+          "text-anchor":"middle"
+        })
+        .text("Timeline");
+
+        brush.x(timelineScale)
+        .y(d3.scale.linear().range([-7,7]).domain(maxRange))
+        .on("brushstart",function(){
+
+        })
+        .on("brush",function(){
+          var e = brush.extent();
+          xScale.domain([e[0][0], e[1][0]]);
+          vis();
+        });
+
+        timelineG.call(brush);
+
 
         var vis = function(){
 
           console.log("dataset:");
           console.log(dataset);
 
-          var xMin = function(d) {return d3.min(d.info, function(d){return +d.Year;})};
-          var xMax = function(d) {return d3.max(d.info, function(d){return +d.Year;})};
+          // var xMin = function(d) {return d3.min(d.info, function(d){return +d.Year;})};
+          // var xMax = function(d) {return d3.max(d.info, function(d){return +d.Year;})};
 
-          xScale.domain([d3.min(dataset, xMin), d3.max(dataset, xMax)]);
+          // xScale.domain([d3.min(dataset, xMin), d3.max(dataset, xMax)]);
 
           yScale.domain([0, d3.max(dataset, function(d){
             return d3.max(d.info, function(d){
@@ -150,6 +182,8 @@
             )]);
 
           console.log("yScale domain:"); console.log(yScale.domain());
+          console.log("xScale domain:"); console.log(xScale.domain());
+
 
           xAxisG.call(xAxis);
           yAxisG.call(yAxis);
@@ -157,12 +191,8 @@
 
           var line = d3.svg.line()
             .interpolate("linear")
-            .x(function(d) {
-             // console.log(d);
-              return xScale(+d.Year); })
-            .y(function(d) {
-              //console.log(d);
-              return yScale(+d.Count); });
+            .x(function(d) {return xScale(+d.Year);})
+            .y(function(d) {return yScale(+d.Count);});
 
           var names = chart.selectAll(".name")
             .data(dataset);
@@ -195,14 +225,13 @@
         }).text("Remove");
 
 
-
-
-
           var lines = names.select("path")
             .attr("d", function(d){
               console.log("drawing line for:")
               console.log(d);
-              return line(d.info)})
+              return line(d.info.filter(function(element){
+                return xScale.domain()[0] <= +element.Year && +element.Year <= xScale.domain()[1];
+              }))})
             .style("fill","None")
             .style("stroke", "black")
             .style("stroke-width", 2)
@@ -242,18 +271,11 @@
           return vis;
         }
 
-        vis.setX = function(value){
-          if (!arguments.length) return xData;
-          xData = value;
+        vis.xScaleDomain = function(value){
+          if (!arguments.length) return xScale.domain();
+          xScale.domain(value);
           return vis;
         }
-
-        vis.setY = function(value){
-          if (!arguments.length) return yData;
-          yData = value;
-          return vis;
-        }
-
 
         return vis;
       };
@@ -323,33 +345,11 @@
               .key(function(d){return d.Name;})
               .key(function(d){return d.Gender;})
               .map(globalDataset, d3.map);
-          vis = createVis("#visDiv", 700,400);
+          //TODO: CALCULATE MIN/MAX
+          vis = createVis("#visDiv", 700,500, [1880,2010]);
           vis.loadData([]);
+          vis.xScaleDomain([1880,2010]);
           vis();
-
-          // var xmenu = d3.select("#xmetrics");
-          // var ymenu = d3.select("#ymetrics");
-          // for (prop in dataset[0]){
-          //   if (prop != "State" && prop != "stateAbbr"){
-          //     xmenu.append("option").attr("value", prop).text(prop);
-          //     ymenu.append("option").attr("value", prop).text(prop);
-          //   }
-          // }
-
-          // document.getElementById('xSelect').value = "perCollege";
-          // document.getElementById('ySelect').value = "income";
-
-          // d3.select("#xSelect").on("change", function(){
-          //   vis.setX(this.value);
-          //   vis();
-
-          // });
-
-          // d3.select("#ySelect").on("change", function(){
-          //   vis.setY(this.value);
-          //   vis();
-
-          // });
 
       });
 
