@@ -31,6 +31,14 @@
 
 #controls{
   float:left;
+  background-color: #ededed;
+  margin-left: 25px;
+  margin-right: 25px;
+  padding: 15px;
+  margin-top:10px;
+}
+#visDiv{
+  float:left;
 }
 #info{
   position:fixed;
@@ -53,7 +61,7 @@
   font-size:12px;
 }
 #break{
-  line-height: 50%;
+  line-height: 100%;
   bottom:0;
   margin-bottom: 0px;
   width: 0px;
@@ -63,10 +71,8 @@
   </head>
   <body>
     <div id="visDiv"></div>
-    <div id="legendDiv">
-      <p id="break">Names</p>
-    </div>
-<div id="controls">
+    
+<div id="controls" class="controls">
     Name: <input type="text" id="inputName"><br>
     <input type="radio" name="gender" value="M" checked> Male<br>
     <input type="radio" name="gender" value="F"> Female<br>
@@ -77,6 +83,9 @@
     <p>X Axis: <select id="xSelect"><optgroup label="Metrics" id="xmetrics"></optgroup></select></p>
     <p>Y Axis: <select id="ySelect"><optgroup label="Metrics" id="ymetrics"></optgroup></select></p>
   -->
+  <div id="legendDiv">
+      <p id="break">Names</p>
+    </div>
 </div>
 
 
