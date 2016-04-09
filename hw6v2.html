@@ -316,23 +316,6 @@
         vis();
       }
 
-      var drawVis = function(){
-        console.log("DRAW VIS BEING CALLED");
-        var name = document.getElementById('inputName').value;
-        if (!name) {name = "";}
-
-            //var name = "Mary";
-            var gender = "M";
-            var x = nestedData.get(name).get(gender);
-            var obj = {"name": name,
-                        "gender": gender,
-                        "info": x};
-
-
-            vis.loadData([obj]);
-            vis();
-      }
-
       d3.csv("http://www.cs.middlebury.edu/~candrews/classes/infovis/data/names1880-2012.csv",
         function(dataset){
           globalDataset = dataset;
@@ -341,7 +324,8 @@
               .key(function(d){return d.Gender;})
               .map(globalDataset, d3.map);
           vis = createVis("#visDiv", 700,400);
-          drawVis();
+          vis.loadData([]);
+          vis();
 
           // var xmenu = d3.select("#xmetrics");
           // var ymenu = d3.select("#ymetrics");
