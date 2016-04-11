@@ -29,6 +29,12 @@
         fill:black;
       }
 
+.brush .extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
+
 #controls{
   float:left;
   background-color: #ededed;
@@ -70,6 +76,7 @@
 </style>
   </head>
   <body>
+    <div><h1>Homework 6: Baby Name Voyager</h1></div>
     <div id="visDiv"></div>
     
 <div id="controls" class="controls">
@@ -158,17 +165,20 @@
           var x1 = e[0][0];
           var x2 = e[1][0];
           xScale.domain([x1, x2]);
-          //brush.extent([[x1,0],[x2,1]]);
+          brush.extent([[x1,0],[x2,1]]);
           vis();
         });
 
-        timelineG.call(brush);
+        timelineG.append("g")
+        .attr("class", "x brush")
+        .call(brush)
+      //       .selectAll("rect")
+      // .attr("y", -6)
+      // .attr("height", 100);
+
 
 
         var vis = function(){
-
-          console.log("dataset:");
-          console.log(dataset);
 
           // var xMin = function(d) {return d3.min(d.info, function(d){return +d.Year;})};
           // var xMax = function(d) {return d3.max(d.info, function(d){return +d.Year;})};
@@ -180,10 +190,6 @@
               return +d.Count;}
               );}
             )]);
-
-          console.log("yScale domain:"); console.log(yScale.domain());
-          console.log("xScale domain:"); console.log(xScale.domain());
-
 
           xAxisG.call(xAxis);
           yAxisG.call(yAxis);
@@ -227,8 +233,6 @@
 
           var lines = names.select("path")
             .attr("d", function(d){
-              console.log("drawing line for:")
-              console.log(d);
               return line(d.info.filter(function(element){
                 return xScale.domain()[0] <= +element.Year && +element.Year <= xScale.domain()[1];
               }))})
@@ -287,6 +291,9 @@
           alert("Cannot have more than 10 names.");
         } else {
           var name = document.getElementById('inputName').value;
+          //check if name is already in list
+          var found = newData.find(function(obj){return obj.name == name;})
+          if (found != undefined) return;
           if (!name) {
             alert("Cannot add empty name.");
           } else {
@@ -345,13 +352,25 @@
               .key(function(d){return d.Name;})
               .key(function(d){return d.Gender;})
               .map(globalDataset, d3.map);
-          //TODO: CALCULATE MIN/MAX
-          vis = createVis("#visDiv", 700,500, [1880,2010]);
+                  
+          var maxRange = getMinMax(dataset);
+          vis = createVis("#visDiv", 700,500, maxRange);
           vis.loadData([]);
-          vis.xScaleDomain([1880,2010]);
+          vis.xScaleDomain(maxRange);
           vis();
 
       });
+
+      var getMinMax = function(dataset) {
+        var min = Number.POSITIVE_INFINITY;
+        var max = Number.NEGATIVE_INFINITY;
+        dataset.forEach(function(element){
+          var year = element.Year;
+          if (year < min) min = year;
+          if (year > max) max = year;
+        });
+        return [min, max];
+      }
 
 
 
