@@ -152,13 +152,13 @@
         .text("Timeline");
 
         brush.x(timelineScale)
-        .y(d3.scale.linear().range([-7,7]).domain(maxRange))
-        .on("brushstart",function(){
-
-        })
+        .y(d3.scale.linear().range([-7,7]).domain([0,1]))
         .on("brush",function(){
           var e = brush.extent();
-          xScale.domain([e[0][0], e[1][0]]);
+          var x1 = e[0][0];
+          var x2 = e[1][0];
+          xScale.domain([x1, x2]);
+          //brush.extent([[x1,0],[x2,1]]);
           vis();
         });
 
