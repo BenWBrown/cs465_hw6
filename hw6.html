@@ -1,14 +1,11 @@
 <!DOCTYPE html>
-<!--TODO: Format legend a little more nicely. move it somewhere else?
-          Add brush
-        -->
+<!-- Homework 6: Baby Name Voyager
+  Ben Brown & Gilbert Kiprop -->
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Simple Event Example</title>
+    <title>Homework 6</title>
       <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-
-
       <style type="text/css">
       .axis text{
           font-family:sans-serif;
@@ -85,11 +82,6 @@
     <input type="radio" name="gender" value="F"> Female<br>
     <input type="radio" name="gender" value="B"> Both <br>
     <button type="button" onclick="addName()">Add</button>
-    <!--<button type="button" onclick="removeName()">Remove</button><br>-->
-    <!--
-    <p>X Axis: <select id="xSelect"><optgroup label="Metrics" id="xmetrics"></optgroup></select></p>
-    <p>Y Axis: <select id="ySelect"><optgroup label="Metrics" id="ymetrics"></optgroup></select></p>
-  -->
   <div id="legendDiv">
       <p id="break">Names</p>
     </div>
@@ -104,9 +96,6 @@
 
 </div>
     <script>
-    // var foo = function(){
-    //   debugger;
-    // }
     var globalDataset;
     var vis, nestedData;
 
@@ -118,6 +107,7 @@
         var chartWidth = width - margins.left - margins.right;
         var chartHeight = height - margins.top - margins.bottom - timelineHeight;
 
+        //need a different scale for overview view
         var timelineScale = d3.scale.linear().range([0, chartWidth]).domain(maxRange);
 
         var xScale = d3.scale.linear().range([0, chartWidth]);
@@ -172,18 +162,9 @@
         timelineG.append("g")
         .attr("class", "x brush")
         .call(brush)
-      //       .selectAll("rect")
-      // .attr("y", -6)
-      // .attr("height", 100);
 
-
-
+        //drawing function
         var vis = function(){
-
-          // var xMin = function(d) {return d3.min(d.info, function(d){return +d.Year;})};
-          // var xMax = function(d) {return d3.max(d.info, function(d){return +d.Year;})};
-
-          // xScale.domain([d3.min(dataset, xMin), d3.max(dataset, xMax)]);
 
           yScale.domain([0, d3.max(dataset, function(d){
             return d3.max(d.info, function(d){
@@ -265,7 +246,6 @@
               var info = d3.select("#info");
               info.classed("hidden", true);
           });
-
         };
 
 
@@ -284,6 +264,7 @@
         return vis;
       };
 
+      //called by 'Add' button in widget
       var addName = function(){
         var newData = vis.loadData();
         if (!newData) newData = [];
@@ -334,9 +315,8 @@
         }
       }
 
+      //called by 'remove' buttons in legend
       var removeName = function(name, gender) {
-        // var name = document.getElementById('inputName').value;
-        // var gender = document.querySelector('input[name="gender"]:checked').value;
         var newData = vis.loadData().filter(function(element){
           return (element.name != name) || (element.gender != gender);
         });
@@ -345,6 +325,7 @@
         vis();
       }
 
+      //run on page load
       d3.csv("http://www.cs.middlebury.edu/~candrews/classes/infovis/data/names1880-2012.csv",
         function(dataset){
           globalDataset = dataset;
@@ -371,10 +352,6 @@
         });
         return [min, max];
       }
-
-
-
-
     </script>
   </body>
 </html>
